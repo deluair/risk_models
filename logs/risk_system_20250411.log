@@ -1,0 +1,81 @@
+2025-04-11 12:22:39,901 - INFO - __main__ - Starting Financial Risk Analysis System
+2025-04-11 12:22:39,901 - INFO - src.core.app_manager - Initializing Risk Analysis System
+2025-04-11 12:22:39,901 - INFO - src.data.data_manager - Initializing DataManager
+2025-04-11 12:22:39,902 - INFO - src.data.data_manager - DataManager initialized successfully
+2025-04-11 12:22:39,902 - INFO - src.risk_modules.risk_registry - Initializing RiskRegistry
+2025-04-11 12:22:39,902 - INFO - src.risk_modules.risk_registry - RiskRegistry initialized with 10 categories
+2025-04-11 12:22:39,902 - INFO - src.models.model_registry - Initializing ModelRegistry
+2025-04-11 12:22:39,903 - INFO - src.models.model_registry - ModelRegistry initialized with 0 models
+2025-04-11 12:22:39,903 - INFO - src.analytics.analysis_engine - Initializing AnalysisEngine
+2025-04-11 12:22:39,903 - INFO - src.analytics.analysis_engine - AnalysisEngine initialized successfully
+2025-04-11 12:22:39,903 - INFO - src.visualization.dashboard - Initializing Dashboard
+2025-04-11 12:22:39,950 - INFO - src.visualization.dashboard - Dashboard initialized successfully
+2025-04-11 12:22:39,950 - INFO - src.core.app_manager - Risk Analysis System initialized successfully
+2025-04-11 12:22:39,951 - INFO - src.core.app_manager - Loading data
+2025-04-11 12:22:39,951 - INFO - src.data.data_manager - Loading market risk data
+2025-04-11 12:22:39,977 - INFO - src.data.data_manager - Market risk data loaded successfully
+2025-04-11 12:22:39,977 - INFO - src.data.data_manager - Loading credit risk data
+2025-04-11 12:22:39,980 - INFO - src.data.data_manager - Credit risk data loaded successfully
+2025-04-11 12:22:39,981 - INFO - src.data.data_manager - Loading liquidity risk data
+2025-04-11 12:22:39,997 - INFO - src.data.data_manager - Liquidity risk data loaded successfully
+2025-04-11 12:22:39,998 - INFO - src.data.data_manager - Loading operational risk data
+2025-04-11 12:22:40,002 - INFO - src.data.data_manager - Operational risk data loaded successfully
+2025-04-11 12:22:40,003 - INFO - src.data.data_manager - Loading climate risk data
+2025-04-11 12:22:40,006 - INFO - src.data.data_manager - Climate risk data loaded successfully
+2025-04-11 12:22:40,006 - INFO - src.data.data_manager - Loading cyber risk data
+2025-04-11 12:22:40,009 - INFO - src.data.data_manager - Cyber risk data loaded successfully
+2025-04-11 12:22:40,010 - INFO - src.data.data_manager - Loading network data
+2025-04-11 12:22:40,012 - INFO - src.data.data_manager - Network data loaded successfully
+2025-04-11 12:22:40,012 - INFO - src.data.data_manager - Processing all data
+2025-04-11 12:22:40,036 - INFO - src.data.data_manager - All data processed successfully
+2025-04-11 12:22:40,037 - INFO - src.core.app_manager - Data loaded successfully
+2025-04-11 12:22:40,037 - INFO - src.core.app_manager - Running risk analysis
+2025-04-11 12:22:40,037 - INFO - src.analytics.analysis_engine - Analyzing market risk
+2025-04-11 12:22:40,046 - INFO - src.analytics.analysis_engine - Market risk analysis completed with overall risk level: high
+2025-04-11 12:22:40,046 - INFO - src.analytics.analysis_engine - Analyzing credit risk
+2025-04-11 12:22:40,046 - INFO - src.analytics.analysis_engine - Analyzing liquidity risk
+2025-04-11 12:22:40,046 - INFO - src.analytics.analysis_engine - Analyzing operational risk
+2025-04-11 12:22:40,047 - INFO - src.analytics.analysis_engine - Analyzing climate risk
+2025-04-11 12:22:40,047 - INFO - src.analytics.analysis_engine - Analyzing cyber risk
+2025-04-11 12:22:40,047 - INFO - src.analytics.analysis_engine - Analyzing AI risk
+2025-04-11 12:22:40,048 - INFO - src.analytics.analysis_engine - Analyzing digitalization risks
+2025-04-11 12:22:40,048 - INFO - src.analytics.analysis_engine - Analyzing nonbank intermediation risks
+2025-04-11 12:22:40,048 - INFO - src.analytics.analysis_engine - Analyzing global financial architecture risks
+2025-04-11 12:22:40,048 - INFO - src.analytics.analysis_engine - Analyzing network interconnectedness
+2025-04-11 12:22:41,372 - INFO - src.analytics.analysis_engine - Network analysis completed successfully
+2025-04-11 12:22:41,373 - INFO - src.analytics.analysis_engine - Running stress tests
+2025-04-11 12:22:41,373 - INFO - src.analytics.analysis_engine - Running stress scenario: baseline
+2025-04-11 12:22:41,374 - INFO - src.analytics.analysis_engine - Running stress scenario: adverse
+2025-04-11 12:22:41,374 - INFO - src.analytics.analysis_engine - Running stress scenario: severely_adverse
+2025-04-11 12:22:41,374 - INFO - src.analytics.analysis_engine - Running stress scenario: climate_transition
+2025-04-11 12:22:41,374 - INFO - src.analytics.analysis_engine - Running stress scenario: cyber_attack
+2025-04-11 12:22:41,375 - INFO - src.analytics.analysis_engine - Running stress scenario: liquidity_freeze
+2025-04-11 12:22:41,375 - INFO - src.analytics.analysis_engine - Completed 6 stress test scenarios
+2025-04-11 12:22:41,375 - INFO - src.analytics.analysis_engine - Calculating systemic risk metrics
+2025-04-11 12:22:41,375 - INFO - src.analytics.analysis_engine - Systemic risk assessment completed with risk level: critical
+2025-04-11 12:22:41,375 - INFO - src.core.app_manager - Risk analysis completed successfully
+2025-04-11 12:22:41,375 - INFO - src.core.app_manager - Starting dashboard
+2025-04-11 12:22:41,376 - INFO - src.visualization.dashboard - Dashboard data updated
+2025-04-11 12:22:41,376 - INFO - dash.dash - Dash is running on http://127.0.0.1:8050/
+
+2025-04-11 12:22:41,404 - INFO - werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8050
+2025-04-11 12:22:41,404 - INFO - werkzeug - [33mPress CTRL+C to quit[0m
+2025-04-11 12:24:39,377 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET / HTTP/1.1" 200 -
+2025-04-11 12:24:39,461 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET /_dash-component-suites/dash/deps/prop-types@15.v3_0_2m1744312101.8.1.min.js HTTP/1.1" 200 -
+2025-04-11 12:24:39,461 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET /_dash-component-suites/dash/deps/react@18.v3_0_2m1744312101.3.1.min.js HTTP/1.1" 200 -
+2025-04-11 12:24:39,496 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET /_dash-component-suites/dash/deps/react-dom@18.v3_0_2m1744312101.3.1.min.js HTTP/1.1" 200 -
+2025-04-11 12:24:39,519 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET /_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_0_2m1744312101.min.js HTTP/1.1" 200 -
+2025-04-11 12:24:39,559 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET /_dash-layout HTTP/1.1" 200 -
+2025-04-11 12:24:39,560 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET /_dash-dependencies HTTP/1.1" 200 -
+2025-04-11 12:24:39,619 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "[36mGET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+2025-04-11 12:24:39,636 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "[36mGET /_dash-component-suites/dash/dcc/async-dropdown.js HTTP/1.1[0m" 304 -
+2025-04-11 12:24:39,646 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "GET /_dash-component-suites/dash/dcc/async-slider.js HTTP/1.1" 200 -
+2025-04-11 12:24:39,815 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:39] "[36mGET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+2025-04-11 12:24:40,412 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:40] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-04-11 12:24:40,414 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:40] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-04-11 12:24:40,420 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:40] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-04-11 12:24:40,426 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:40] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-04-11 12:24:40,432 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:40] "GET /_favicon.ico?v=3.0.2 HTTP/1.1" 200 -
+2025-04-11 12:24:40,456 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:40] "POST /_dash-update-component HTTP/1.1" 200 -
+2025-04-11 12:24:40,472 - INFO - werkzeug - 127.0.0.1 - - [11/Apr/2025 12:24:40] "POST /_dash-update-component HTTP/1.1" 200 -

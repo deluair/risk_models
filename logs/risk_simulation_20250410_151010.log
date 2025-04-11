@@ -1,0 +1,74 @@
+2025-04-10 15:10:10,072 - __main__ - INFO - Starting risk simulation process
+2025-04-10 15:10:10,073 - __main__ - INFO - Starting comparison of 4 scenarios
+2025-04-10 15:10:10,073 - __main__ - INFO - === Starting risk system test for scenario: base ===
+2025-04-10 15:10:10,074 - __main__ - INFO - Generating new simulation data for scenario: base
+2025-04-10 15:10:10,074 - src.testing.simulation - INFO - Initializing FinancialDataSimulator
+2025-04-10 15:10:10,075 - src.testing.simulation - INFO - FinancialDataSimulator initialized successfully
+2025-04-10 15:10:10,075 - src.testing.simulation - INFO - Running simulation scenario: base
+2025-04-10 15:10:10,076 - src.testing.simulation - INFO - Generating synthetic market data
+2025-04-10 15:10:10,102 - src.testing.simulation - INFO - Synthetic market data generated successfully
+2025-04-10 15:10:10,102 - src.testing.simulation - INFO - Generating synthetic credit data with 100 assets
+2025-04-10 15:10:10,109 - src.testing.simulation - INFO - Synthetic credit data generated successfully
+2025-04-10 15:10:10,160 - src.testing.simulation - INFO - Scenario base data saved to C:\Users\mhossen\OneDrive - University of Tennessee\AI\risk_model\data\raw\scenario_base
+2025-04-10 15:10:10,160 - __main__ - INFO - Initializing data manager and loading data
+2025-04-10 15:10:10,161 - src.data.data_manager - INFO - Initializing DataManager
+2025-04-10 15:10:10,161 - src.data.data_manager - INFO - DataManager initialized successfully
+2025-04-10 15:10:10,162 - src.data.data_manager - INFO - Loading market risk data
+2025-04-10 15:10:10,185 - src.data.data_manager - INFO - Market risk data loaded successfully
+2025-04-10 15:10:10,185 - __main__ - ERROR - Error loading data: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,186 - __main__ - ERROR - Error running scenario base: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,186 - __main__ - INFO - === Starting risk system test for scenario: market_crash ===
+2025-04-10 15:10:10,186 - __main__ - INFO - Generating new simulation data for scenario: market_crash
+2025-04-10 15:10:10,187 - src.testing.simulation - INFO - Initializing FinancialDataSimulator
+2025-04-10 15:10:10,187 - src.testing.simulation - INFO - FinancialDataSimulator initialized successfully
+2025-04-10 15:10:10,188 - src.testing.simulation - INFO - Running simulation scenario: market_crash
+2025-04-10 15:10:10,188 - src.testing.simulation - INFO - Generating synthetic market data
+2025-04-10 15:10:10,204 - src.testing.simulation - INFO - Synthetic market data generated successfully
+2025-04-10 15:10:10,205 - src.testing.simulation - INFO - Generating synthetic credit data with 100 assets
+2025-04-10 15:10:10,208 - src.testing.simulation - INFO - Synthetic credit data generated successfully
+2025-04-10 15:10:10,249 - src.testing.simulation - INFO - Scenario market_crash data saved to C:\Users\mhossen\OneDrive - University of Tennessee\AI\risk_model\data\raw\scenario_market_crash
+2025-04-10 15:10:10,250 - __main__ - INFO - Initializing data manager and loading data
+2025-04-10 15:10:10,250 - src.data.data_manager - INFO - Initializing DataManager
+2025-04-10 15:10:10,251 - src.data.data_manager - INFO - DataManager initialized successfully
+2025-04-10 15:10:10,252 - src.data.data_manager - INFO - Loading market risk data
+2025-04-10 15:10:10,268 - src.data.data_manager - INFO - Market risk data loaded successfully
+2025-04-10 15:10:10,268 - __main__ - ERROR - Error loading data: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,268 - __main__ - ERROR - Error running scenario market_crash: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,269 - __main__ - INFO - === Starting risk system test for scenario: credit_deterioration ===
+2025-04-10 15:10:10,270 - __main__ - INFO - Generating new simulation data for scenario: credit_deterioration
+2025-04-10 15:10:10,270 - src.testing.simulation - INFO - Initializing FinancialDataSimulator
+2025-04-10 15:10:10,270 - src.testing.simulation - INFO - FinancialDataSimulator initialized successfully
+2025-04-10 15:10:10,271 - src.testing.simulation - INFO - Running simulation scenario: credit_deterioration
+2025-04-10 15:10:10,271 - src.testing.simulation - INFO - Generating synthetic market data
+2025-04-10 15:10:10,287 - src.testing.simulation - INFO - Synthetic market data generated successfully
+2025-04-10 15:10:10,287 - src.testing.simulation - INFO - Generating synthetic credit data with 100 assets
+2025-04-10 15:10:10,290 - src.testing.simulation - INFO - Synthetic credit data generated successfully
+2025-04-10 15:10:10,333 - src.testing.simulation - INFO - Scenario credit_deterioration data saved to C:\Users\mhossen\OneDrive - University of Tennessee\AI\risk_model\data\raw\scenario_credit_deterioration
+2025-04-10 15:10:10,334 - __main__ - INFO - Initializing data manager and loading data
+2025-04-10 15:10:10,334 - src.data.data_manager - INFO - Initializing DataManager
+2025-04-10 15:10:10,334 - src.data.data_manager - INFO - DataManager initialized successfully
+2025-04-10 15:10:10,335 - src.data.data_manager - INFO - Loading market risk data
+2025-04-10 15:10:10,351 - src.data.data_manager - INFO - Market risk data loaded successfully
+2025-04-10 15:10:10,352 - __main__ - ERROR - Error loading data: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,352 - __main__ - ERROR - Error running scenario credit_deterioration: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,352 - __main__ - INFO - === Starting risk system test for scenario: combined_stress ===
+2025-04-10 15:10:10,353 - __main__ - INFO - Generating new simulation data for scenario: combined_stress
+2025-04-10 15:10:10,353 - src.testing.simulation - INFO - Initializing FinancialDataSimulator
+2025-04-10 15:10:10,354 - src.testing.simulation - INFO - FinancialDataSimulator initialized successfully
+2025-04-10 15:10:10,355 - src.testing.simulation - INFO - Running simulation scenario: combined_stress
+2025-04-10 15:10:10,355 - src.testing.simulation - INFO - Generating synthetic market data
+2025-04-10 15:10:10,371 - src.testing.simulation - INFO - Synthetic market data generated successfully
+2025-04-10 15:10:10,371 - src.testing.simulation - INFO - Generating synthetic credit data with 100 assets
+2025-04-10 15:10:10,374 - src.testing.simulation - INFO - Synthetic credit data generated successfully
+2025-04-10 15:10:10,416 - src.testing.simulation - INFO - Scenario combined_stress data saved to C:\Users\mhossen\OneDrive - University of Tennessee\AI\risk_model\data\raw\scenario_combined_stress
+2025-04-10 15:10:10,417 - __main__ - INFO - Initializing data manager and loading data
+2025-04-10 15:10:10,417 - src.data.data_manager - INFO - Initializing DataManager
+2025-04-10 15:10:10,417 - src.data.data_manager - INFO - DataManager initialized successfully
+2025-04-10 15:10:10,418 - src.data.data_manager - INFO - Loading market risk data
+2025-04-10 15:10:10,434 - src.data.data_manager - INFO - Market risk data loaded successfully
+2025-04-10 15:10:10,435 - __main__ - ERROR - Error loading data: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,435 - __main__ - ERROR - Error running scenario combined_stress: 'NoneType' object has no attribute 'values'
+2025-04-10 15:10:10,436 - __main__ - INFO - Comparing key metrics across scenarios
+2025-04-10 15:10:11,665 - __main__ - INFO - Comparison results saved to results\scenario_comparison
+2025-04-10 15:10:11,665 - __main__ - INFO - Scenario comparison completed
+2025-04-10 15:10:11,666 - __main__ - INFO - Risk simulation process completed

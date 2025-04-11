@@ -1,0 +1,136 @@
+2025-04-10 15:40:15,502 - INFO - __main__ - Starting Financial Risk Analysis System
+2025-04-10 15:40:15,502 - INFO - src.core.app_manager - Initializing Risk Analysis System
+2025-04-10 15:40:15,516 - INFO - src.data.data_manager - Initializing DataManager
+2025-04-10 15:40:15,516 - INFO - src.data.data_manager - DataManager initialized successfully
+2025-04-10 15:40:15,516 - INFO - src.risk_modules.risk_registry - Initializing RiskRegistry
+2025-04-10 15:40:15,517 - INFO - src.risk_modules.risk_registry - RiskRegistry initialized with 10 categories
+2025-04-10 15:40:15,517 - INFO - src.models.model_registry - Initializing ModelRegistry
+2025-04-10 15:40:15,519 - INFO - src.models.model_registry - ModelRegistry initialized with 0 models
+2025-04-10 15:40:15,519 - INFO - src.analytics.analysis_engine - Initializing AnalysisEngine
+2025-04-10 15:40:15,519 - INFO - src.analytics.analysis_engine - AnalysisEngine initialized successfully
+2025-04-10 15:40:15,519 - INFO - src.visualization.dashboard - Initializing Dashboard
+2025-04-10 15:40:15,560 - INFO - src.visualization.dashboard - Dashboard initialized successfully
+2025-04-10 15:40:15,560 - INFO - src.core.app_manager - Risk Analysis System initialized successfully
+2025-04-10 15:40:15,560 - INFO - src.core.app_manager - Loading data
+2025-04-10 15:40:15,560 - INFO - src.data.data_manager - Loading market risk data
+2025-04-10 15:40:15,583 - INFO - src.data.data_manager - Market risk data loaded successfully
+2025-04-10 15:40:15,583 - INFO - src.data.data_manager - Loading credit risk data
+2025-04-10 15:40:15,588 - INFO - src.data.data_manager - Credit risk data loaded successfully
+2025-04-10 15:40:15,588 - INFO - src.data.data_manager - Loading liquidity risk data
+2025-04-10 15:40:15,605 - INFO - src.data.data_manager - Liquidity risk data loaded successfully
+2025-04-10 15:40:15,606 - INFO - src.data.data_manager - Loading operational risk data
+2025-04-10 15:40:15,611 - INFO - src.data.data_manager - Operational risk data loaded successfully
+2025-04-10 15:40:15,611 - INFO - src.data.data_manager - Loading climate risk data
+2025-04-10 15:40:15,615 - INFO - src.data.data_manager - Climate risk data loaded successfully
+2025-04-10 15:40:15,615 - INFO - src.data.data_manager - Loading cyber risk data
+2025-04-10 15:40:15,617 - INFO - src.data.data_manager - Cyber risk data loaded successfully
+2025-04-10 15:40:15,617 - INFO - src.data.data_manager - Loading network data
+2025-04-10 15:40:15,618 - INFO - src.data.data_manager - Network data loaded successfully
+2025-04-10 15:40:15,619 - INFO - src.data.data_manager - Processing all data
+2025-04-10 15:40:15,643 - INFO - src.data.data_manager - All data processed successfully
+2025-04-10 15:40:15,644 - INFO - src.core.app_manager - Data loaded successfully
+2025-04-10 15:40:15,644 - INFO - src.core.app_manager - Running risk analysis
+2025-04-10 15:40:15,644 - INFO - src.analytics.analysis_engine - Analyzing market risk
+2025-04-10 15:40:15,652 - INFO - src.analytics.analysis_engine - Market risk analysis completed with overall risk level: high
+2025-04-10 15:40:15,653 - INFO - src.analytics.analysis_engine - Analyzing credit risk
+2025-04-10 15:40:15,653 - INFO - src.analytics.analysis_engine - Analyzing liquidity risk
+2025-04-10 15:40:15,653 - INFO - src.analytics.analysis_engine - Analyzing operational risk
+2025-04-10 15:40:15,653 - INFO - src.analytics.analysis_engine - Analyzing climate risk
+2025-04-10 15:40:15,654 - INFO - src.analytics.analysis_engine - Analyzing cyber risk
+2025-04-10 15:40:15,654 - INFO - src.analytics.analysis_engine - Analyzing AI risk
+2025-04-10 15:40:15,654 - INFO - src.analytics.analysis_engine - Analyzing digitalization risks
+2025-04-10 15:40:15,655 - INFO - src.analytics.analysis_engine - Analyzing nonbank intermediation risks
+2025-04-10 15:40:15,655 - INFO - src.analytics.analysis_engine - Analyzing global financial architecture risks
+2025-04-10 15:40:15,655 - INFO - src.analytics.analysis_engine - Analyzing network interconnectedness
+2025-04-10 15:40:15,769 - INFO - src.analytics.analysis_engine - Network analysis completed successfully
+2025-04-10 15:40:15,769 - INFO - src.analytics.analysis_engine - Running stress tests
+2025-04-10 15:40:15,783 - INFO - src.analytics.analysis_engine - Running stress scenario: baseline
+2025-04-10 15:40:15,783 - INFO - src.analytics.analysis_engine - Running stress scenario: adverse
+2025-04-10 15:40:15,783 - INFO - src.analytics.analysis_engine - Running stress scenario: severely_adverse
+2025-04-10 15:40:15,783 - INFO - src.analytics.analysis_engine - Running stress scenario: climate_transition
+2025-04-10 15:40:15,784 - INFO - src.analytics.analysis_engine - Running stress scenario: cyber_attack
+2025-04-10 15:40:15,784 - INFO - src.analytics.analysis_engine - Running stress scenario: liquidity_freeze
+2025-04-10 15:40:15,784 - INFO - src.analytics.analysis_engine - Completed 6 stress test scenarios
+2025-04-10 15:40:15,784 - INFO - src.analytics.analysis_engine - Calculating systemic risk metrics
+2025-04-10 15:40:15,784 - INFO - src.analytics.analysis_engine - Systemic risk assessment completed with risk level: critical
+2025-04-10 15:40:15,784 - INFO - src.core.app_manager - Risk analysis completed successfully
+2025-04-10 15:40:15,785 - INFO - src.core.app_manager - Starting dashboard
+2025-04-10 15:40:15,785 - INFO - src.visualization.dashboard - Dashboard data updated
+2025-04-10 15:40:15,785 - ERROR - src.core.app_manager - Error starting dashboard: app.run_server has been replaced by app.run
+2025-04-10 15:40:15,786 - ERROR - __main__ - Error running Risk Analysis System: app.run_server has been replaced by app.run
+Traceback (most recent call last):
+  File "C:\Users\mhossen\OneDrive - University of Tennessee\AI\risk_model\src\main.py", line 37, in main
+    risk_system.start_dashboard()
+  File "C:\Users\mhossen\OneDrive - University of Tennessee\AI\risk_model\src\core\app_manager.py", line 114, in start_dashboard
+    self.dashboard.run_server(
+  File "C:\Users\mhossen\OneDrive - University of Tennessee\AI\risk_model\src\visualization\dashboard.py", line 67, in run_server
+    self.app.run_server(host=host, port=port, debug=debug)
+    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mhossen\AppData\Local\Programs\Python\Python312\Lib\site-packages\dash\_obsolete.py", line 22, in __getattr__
+    raise err.exc(err.message)
+dash.exceptions.ObsoleteAttributeException: app.run_server has been replaced by app.run
+2025-04-10 15:40:52,896 - INFO - __main__ - Starting Financial Risk Analysis System
+2025-04-10 15:40:52,896 - INFO - src.core.app_manager - Initializing Risk Analysis System
+2025-04-10 15:40:52,896 - INFO - src.data.data_manager - Initializing DataManager
+2025-04-10 15:40:52,896 - INFO - src.data.data_manager - DataManager initialized successfully
+2025-04-10 15:40:52,896 - INFO - src.risk_modules.risk_registry - Initializing RiskRegistry
+2025-04-10 15:40:52,896 - INFO - src.risk_modules.risk_registry - RiskRegistry initialized with 10 categories
+2025-04-10 15:40:52,896 - INFO - src.models.model_registry - Initializing ModelRegistry
+2025-04-10 15:40:52,896 - INFO - src.models.model_registry - ModelRegistry initialized with 0 models
+2025-04-10 15:40:52,896 - INFO - src.analytics.analysis_engine - Initializing AnalysisEngine
+2025-04-10 15:40:52,896 - INFO - src.analytics.analysis_engine - AnalysisEngine initialized successfully
+2025-04-10 15:40:52,896 - INFO - src.visualization.dashboard - Initializing Dashboard
+2025-04-10 15:40:52,946 - INFO - src.visualization.dashboard - Dashboard initialized successfully
+2025-04-10 15:40:52,946 - INFO - src.core.app_manager - Risk Analysis System initialized successfully
+2025-04-10 15:40:52,946 - INFO - src.core.app_manager - Loading data
+2025-04-10 15:40:52,946 - INFO - src.data.data_manager - Loading market risk data
+2025-04-10 15:40:52,968 - INFO - src.data.data_manager - Market risk data loaded successfully
+2025-04-10 15:40:52,968 - INFO - src.data.data_manager - Loading credit risk data
+2025-04-10 15:40:52,973 - INFO - src.data.data_manager - Credit risk data loaded successfully
+2025-04-10 15:40:52,973 - INFO - src.data.data_manager - Loading liquidity risk data
+2025-04-10 15:40:52,990 - INFO - src.data.data_manager - Liquidity risk data loaded successfully
+2025-04-10 15:40:52,990 - INFO - src.data.data_manager - Loading operational risk data
+2025-04-10 15:40:52,994 - INFO - src.data.data_manager - Operational risk data loaded successfully
+2025-04-10 15:40:52,995 - INFO - src.data.data_manager - Loading climate risk data
+2025-04-10 15:40:52,997 - INFO - src.data.data_manager - Climate risk data loaded successfully
+2025-04-10 15:40:52,997 - INFO - src.data.data_manager - Loading cyber risk data
+2025-04-10 15:40:53,001 - INFO - src.data.data_manager - Cyber risk data loaded successfully
+2025-04-10 15:40:53,001 - INFO - src.data.data_manager - Loading network data
+2025-04-10 15:40:53,002 - INFO - src.data.data_manager - Network data loaded successfully
+2025-04-10 15:40:53,002 - INFO - src.data.data_manager - Processing all data
+2025-04-10 15:40:53,019 - INFO - src.data.data_manager - All data processed successfully
+2025-04-10 15:40:53,019 - INFO - src.core.app_manager - Data loaded successfully
+2025-04-10 15:40:53,020 - INFO - src.core.app_manager - Running risk analysis
+2025-04-10 15:40:53,020 - INFO - src.analytics.analysis_engine - Analyzing market risk
+2025-04-10 15:40:53,027 - INFO - src.analytics.analysis_engine - Market risk analysis completed with overall risk level: critical
+2025-04-10 15:40:53,027 - INFO - src.analytics.analysis_engine - Analyzing credit risk
+2025-04-10 15:40:53,027 - INFO - src.analytics.analysis_engine - Analyzing liquidity risk
+2025-04-10 15:40:53,027 - INFO - src.analytics.analysis_engine - Analyzing operational risk
+2025-04-10 15:40:53,028 - INFO - src.analytics.analysis_engine - Analyzing climate risk
+2025-04-10 15:40:53,028 - INFO - src.analytics.analysis_engine - Analyzing cyber risk
+2025-04-10 15:40:53,028 - INFO - src.analytics.analysis_engine - Analyzing AI risk
+2025-04-10 15:40:53,028 - INFO - src.analytics.analysis_engine - Analyzing digitalization risks
+2025-04-10 15:40:53,028 - INFO - src.analytics.analysis_engine - Analyzing nonbank intermediation risks
+2025-04-10 15:40:53,028 - INFO - src.analytics.analysis_engine - Analyzing global financial architecture risks
+2025-04-10 15:40:53,028 - INFO - src.analytics.analysis_engine - Analyzing network interconnectedness
+2025-04-10 15:40:53,148 - INFO - src.analytics.analysis_engine - Network analysis completed successfully
+2025-04-10 15:40:53,148 - INFO - src.analytics.analysis_engine - Running stress tests
+2025-04-10 15:40:53,148 - INFO - src.analytics.analysis_engine - Running stress scenario: baseline
+2025-04-10 15:40:53,149 - INFO - src.analytics.analysis_engine - Running stress scenario: adverse
+2025-04-10 15:40:53,149 - INFO - src.analytics.analysis_engine - Running stress scenario: severely_adverse
+2025-04-10 15:40:53,149 - INFO - src.analytics.analysis_engine - Running stress scenario: climate_transition
+2025-04-10 15:40:53,149 - INFO - src.analytics.analysis_engine - Running stress scenario: cyber_attack
+2025-04-10 15:40:53,150 - INFO - src.analytics.analysis_engine - Running stress scenario: liquidity_freeze
+2025-04-10 15:40:53,150 - INFO - src.analytics.analysis_engine - Completed 6 stress test scenarios
+2025-04-10 15:40:53,150 - INFO - src.analytics.analysis_engine - Calculating systemic risk metrics
+2025-04-10 15:40:53,150 - INFO - src.analytics.analysis_engine - Systemic risk assessment completed with risk level: critical
+2025-04-10 15:40:53,150 - INFO - src.core.app_manager - Risk analysis completed successfully
+2025-04-10 15:40:53,150 - INFO - src.core.app_manager - Starting dashboard
+2025-04-10 15:40:53,150 - INFO - src.visualization.dashboard - Dashboard data updated
+2025-04-10 15:40:53,151 - INFO - dash.dash - Dash is running on http://127.0.0.1:8050/
+
+2025-04-10 15:40:53,162 - INFO - werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8050
+2025-04-10 15:40:53,163 - INFO - werkzeug - [33mPress CTRL+C to quit[0m
+2025-04-10 16:36:40,669 - INFO - src.core.app_manager - Dashboard started successfully
+2025-04-10 16:36:40,675 - INFO - __main__ - Risk Analysis System completed successfully
