@@ -31,11 +31,12 @@ class RiskAnalysisSystem:
             self.risk_registry,
             self.model_registry
         )
-        self.dashboard = Dashboard(self.analysis_engine)
+        # Initialize analysis_results BEFORE initializing Dashboard
+        self.analysis_results = {}
+        self.dashboard = Dashboard(self.analysis_results)
         
         # Track execution state
         self.is_data_loaded = False
-        self.analysis_results = {}
         
         self.logger.info("Risk Analysis System initialized successfully")
     
@@ -110,7 +111,8 @@ class RiskAnalysisSystem:
                 self.logger.warning("No analysis results found. Running analysis first.")
                 self.run_analysis()
             
-            self.dashboard.update_data(self.analysis_results)
+            # No need to call update_data anymore
+            # self.dashboard.update_data(self.analysis_results)
             self.dashboard.run(
                 host=settings.DASHBOARD_HOST,
                 port=settings.DASHBOARD_PORT,
