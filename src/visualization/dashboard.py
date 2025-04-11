@@ -12,6 +12,7 @@ import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
+import networkx as nx
 
 from src.core.config import settings
 from src.analytics.analysis_engine import AnalysisEngine
@@ -53,6 +54,21 @@ class Dashboard:
         
         self.logger.info("Dashboard initialized successfully")
     
+    def update_data(self, data: Dict[str, Any]):
+        """Update dashboard data with new analysis results
+        
+        Args:
+            data: New analysis results for the dashboard
+        """
+        self.data = data
+        # Update scenarios based on new data
+        self.scenarios = list(self.data.get('stress_tests', {}).keys())
+        if not self.scenarios:
+            self.logger.warning("No stress test scenarios found in updated analysis results.")
+            self.scenarios = ['baseline']
+        # Potentially re-trigger layout update if scenarios changed? For now, assume Dropdown handles options update.
+        self.logger.info("Dashboard data updated")
+
     def run(self, host="127.0.0.1", port=8050, debug=False):
         """Run the dashboard server
         
@@ -268,47 +284,62 @@ class Dashboard:
             self.logger.debug("Updating risk summary chart.")
 
             try:
-                # Assuming results structure like: self.data['systemic_risk']['overall_risk_by_category']
+                # Assuming results structure: self.data['systemic_risk']['overall_risk_by_category']
+                # This key comes from calculate_systemic_risk_metrics in AnalysisEngine
                 risk_data = self.data.get('systemic_risk', {}).get('overall_risk_by_category', {})
                 
                 if not risk_data:
-                    self.logger.warning("Systemic risk summary data not found.")
-                    # Return empty fig or placeholder text
-                    fig.update_layout(title="Risk Summary Data Not Available", xaxis={'visible': False}, yaxis={'visible': False})
-                    return fig
+                     self.logger.warning("Systemic risk summary data ('systemic_risk.overall_risk_by_category') not found in self.data.")
+                     fig.update_layout(title="Risk Summary Data Not Available", xaxis={'visible': False}, yaxis={'visible': False})
+                     return fig
 
                 categories = list(risk_data.keys())
-                # Assuming values are risk scores or levels that can be mapped numerically
                 risk_scores = [] 
                 risk_levels = [] # Store original level strings
                 level_to_score = {'low': 25, 'medium': 50, 'high': 75, 'critical': 100} # Example mapping
 
                 for cat in categories:
+                    # Expecting structure like {'level': 'high', 'score': 2.7}
                     level = risk_data[cat].get('level', 'low') # Default to low if missing
-                    risk_levels.append(level)
-                    risk_scores.append(level_to_score.get(level, 0))
+                    score = risk_data[cat].get('score') 
+                    risk_levels.append(level.title()) # e.g., "High"
+                    # Use score if available and map, otherwise use level mapping
+                    if score is not None:
+                         # Normalize score (assuming it's 1-4 scale from AnalysisEngine) to 0-100
+                         risk_scores.append(min(100, max(0, (score - 1) / 3 * 100))) 
+                    else:
+                         risk_scores.append(level_to_score.get(level, 0))
             
                 # Create figure
                 fig = go.Figure(data=[
                     go.Bar(
-                        x=categories,
+                        x=[c.replace('_',' ').title() for c in categories],
                         y=risk_scores,
-                        text=risk_levels, # Show level name on hover/text
-                        textposition='auto',
-                        marker_color=[
-                            'green' if x < 40 else 'orange' if x < 70 else 'red'
-                            for x in risk_scores
-                        ]
+                        text=risk_levels, # Show level name 
+                        hoverinfo='x+text+y', # Show category, level, and score
+                        textposition='none', # Avoid cluttering bars directly
+                        marker=dict(
+                            color=risk_scores, # Color bars based on score
+                            colorscale=[[0, 'green'], [0.33, 'yellow'], [0.66, 'orange'], [1, 'red']], # Low->Medium->High->Critical
+                            cmin=0,
+                            cmax=100,
+                            colorbar=dict(title='Risk Score')
+                        )
+                        # marker_color=[ # Old color logic
+                        #     'green' if x < 40 else 'orange' if x < 70 else 'red'
+                        #     for x in risk_scores
+                        # ] 
                     )
                 ])
                 
                 fig.update_layout(
-                    title="Overall Risk Level by Category",
+                    title="Overall Risk Score by Category",
                     xaxis_title="Risk Category",
                     yaxis_title="Risk Score (0-100)",
                     yaxis=dict(range=[0, 100]), # Fixed scale
                     template=settings.DEFAULT_CHART_THEME
                 )
+            
             except Exception as e:
                 self.logger.error(f"Error updating risk summary chart: {e}", exc_info=True)
                 fig.update_layout(title=f"Error: {e}", xaxis={'visible': False}, yaxis={'visible': False})
@@ -320,79 +351,75 @@ class Dashboard:
             Input("time-slider", "value")
         )
         def update_risk_heatmap(time_range):
-            """Update risk heatmap using actual data"""
+            """Update risk heatmap using baseline overall risk scores"""
             fig = go.Figure()
-            self.logger.debug("Updating risk heatmap.")
+            self.logger.debug("Updating risk heatmap using baseline overall scores.")
+            level_to_score = {'low': 25, 'medium': 50, 'high': 75, 'critical': 100}
 
             try:
-                # --- This requires defining which metrics form the heatmap ---
-                # Option 1: Use predefined key metrics across categories
-                # Option 2: Let user select metrics?
-                # For now, try to map placeholder metrics to potential real data
+                baseline_stress_data = self.data.get('stress_tests', {}).get('baseline', {})
                 
-                heatmap_data = {}
-                categories_in_heatmap = settings.RISK_CATEGORIES # Use categories from config
-                metrics_in_heatmap = [
-                    'value_at_risk', 'expected_shortfall', 'volatility', # Market
-                    'default_rate', 'credit_spread', # Credit (Needs Credit Analysis impl)
-                    'liquidity_ratio', 'funding_cost' # Liquidity (Needs Liquidity Analysis impl)
-                ] 
-                # Note: Many risk categories don't have obvious numeric metrics yet based on AnalysisEngine placeholders
+                if not baseline_stress_data:
+                     self.logger.warning("Baseline stress test data not found for heatmap.")
+                     fig.update_layout(title="Risk Heatmap Data Not Available (Missing Baseline)", xaxis={'visible': False}, yaxis={'visible': False})
+                     return fig
 
-                risk_values = []
-                metric_labels = []
+                categories_in_heatmap = list(baseline_stress_data.keys())
+                # Remove non-category keys if present
+                categories_in_heatmap = [c for c in categories_in_heatmap if c not in ['scenario_info']]
+                
+                risk_scores = []
+                valid_categories = []
 
                 for cat in categories_in_heatmap:
-                    cat_data = self.data.get(cat, {})
-                    row_values = []
-                    valid_metrics_in_row = []
-                    for metric in metrics_in_heatmap:
-                        # Need to access specific value within the metric dict, e.g., var_95, score, level
-                        # This logic needs refinement based on actual data structure
-                        value = None
-                        if metric == 'value_at_risk' and 'sp500' in cat_data.get(metric, {}):
-                            value = abs(cat_data[metric]['sp500'].get('var_95', 0)) * 100 # Example: Use SP500 VaR 95%
-                        elif metric == 'volatility' and 'sp500' in cat_data.get(metric, {}):
-                            value = cat_data[metric]['sp500'].get('annualized_vol', 0) * 100 # Example: Use SP500 Vol
-                        # Add similar logic for other metrics/categories when implemented
-                        
-                        # Placeholder for unimplemented metrics/categories
-                        if value is None:
-                            value = np.random.uniform(0, 100) if cat_data else 0 # Replace with 0 or NaN
-                        
-                        row_values.append(value)
-                        if cat == categories_in_heatmap[0]: # Add metric label only once
-                            metric_labels.append(metric.replace('_', ' ').title())
-                        
-                    risk_values.append(row_values)
+                    overall_baseline = baseline_stress_data[cat].get('overall_risk')
+                    if overall_baseline and isinstance(overall_baseline, dict):
+                        score = overall_baseline.get('score')
+                        level = overall_baseline.get('level', 'low')
+                        value = 0
+                        if score is not None:
+                             # Normalize score (assuming 1-4) to 0-100
+                             value = min(100, max(0, (score - 1) / 3 * 100))
+                        else:
+                             value = level_to_score.get(level, 0)
+                        risk_scores.append(value)
+                        valid_categories.append(cat.replace('_',' ').title())
+                    else:
+                         self.logger.warning(f"Could not find valid 'overall_risk' data for category '{cat}' in baseline stress data for heatmap.")
                 
-                if not risk_values or not metric_labels:
-                    self.logger.warning("Could not assemble data for risk heatmap.")
-                    fig.update_layout(title="Risk Heatmap Data Not Available", xaxis={'visible': False}, yaxis={'visible': False})
+                if not risk_scores or not valid_categories:
+                    self.logger.warning("Could not assemble any baseline overall risk scores for heatmap.")
+                    fig.update_layout(title="Risk Heatmap: No Baseline Scores Found", xaxis={'visible': False}, yaxis={'visible': False})
                     return fig
 
-                # Create heatmap
+                # Create heatmap (Categories x 1 Metric)
+                # Reshape scores for px.imshow which expects a 2D array
+                heatmap_values = np.array(risk_scores).reshape(-1, 1)
+                metric_label = ["Baseline Overall Risk Score"]
+                
                 fig = px.imshow(
-                    np.array(risk_values), # Convert to numpy array
-                    x=metric_labels,
-                    y=[c.replace('_', ' ').title() for c in categories_in_heatmap],
+                    heatmap_values, 
+                    x=metric_label, # Single column
+                    y=valid_categories,
                     color_continuous_scale="RdYlGn_r", 
                     zmin=0,
-                    zmax=100, # Assuming risk scores are 0-100
-                    aspect="auto"
+                    zmax=100, # Scores are 0-100
+                    aspect="auto",
+                    labels=dict(x="Metric", y="Risk Category", color="Risk Score")
                 )
                 
                 fig.update_layout(
-                    title="Risk Metric Heatmap (Illustrative)", # Mark as illustrative
-                    xaxis_title="Risk Metric",
+                    title="Baseline Overall Risk Score Heatmap", 
+                    xaxis_title=None, # Only one metric, title is clear
                     yaxis_title="Risk Category",
-                    coloraxis_colorbar_title="Risk Score/Value",
+                    coloraxis_colorbar_title="Risk Score",
                     template=settings.DEFAULT_CHART_THEME
                 )
+            
             except Exception as e:
                 self.logger.error(f"Error updating risk heatmap: {e}", exc_info=True)
                 fig.update_layout(title=f"Error: {e}", xaxis={'visible': False}, yaxis={'visible': False})
-               
+                
             return fig
         
         @self.app.callback(
@@ -406,6 +433,7 @@ class Dashboard:
             category_display = category.replace("_", " ").title() if category else "No Category"
             header = f"{category_display} Detailed Analysis"
             self.logger.debug(f"Updating detailed metrics for category: {category}")
+            level_to_score = {'low': 25, 'medium': 50, 'high': 75, 'critical': 100} 
 
             if not category:
                 return "No Category Selected", go.Figure()
@@ -414,14 +442,13 @@ class Dashboard:
                 category_data = self.data.get(category)
 
                 if not category_data or not isinstance(category_data, dict):
-                    self.logger.warning(f"Data for risk category '{category}' not found or not a dict.")
+                    self.logger.warning(f"Data for risk category '{category}' not found or not a dict in self.data.")
                     fig.update_layout(title=f"Data for {category_display} Not Available", xaxis={'visible': False}, yaxis={'visible': False})
                     return header, fig
 
-                # --- Logic to extract and plot metrics based on category ---
                 metrics = []
                 values = []
-                sub_metrics = [] # For nested metrics like VaR per index
+                chart_title = f"Detailed Metrics for {category_display}" # Default title
 
                 if category == "market_risk":
                     # Example: Plot VaR 95% for different indices
@@ -429,82 +456,76 @@ class Dashboard:
                     if var_data:
                         metrics = list(var_data.keys())
                         values = [abs(var_data[m].get('var_95', 0)) * 100 for m in metrics] # Plot abs VaR %
-                        chart_title = "Value at Risk (95%)" 
+                        chart_title = "Market Risk: Value at Risk (95%, % of Portfolio)" 
                     else:
-                        chart_title = "Market Risk Data Missing"
+                         chart_title = "Market Risk: Value at Risk Data Missing"
+                
                 elif category == "network":
-                    # Example: Plot centrality measures
-                    network_metrics = category_data.get('centrality', {})
-                    if network_metrics:
-                        metrics = list(network_metrics.keys())
-                        # Need to decide which centrality measure to plot, e.g., degree
-                        # This depends heavily on the actual structure of network_metrics
-                        # Placeholder: Assume it's a dict of node -> centrality score
-                        # values = list(network_metrics.values()) # Simplistic if node->score
-                        # Assume structure is measure -> {node: score}
-                        if 'degree_centrality' in network_metrics:
-                            nodes = list(network_metrics['degree_centrality'].keys())
-                            metrics = nodes # Plot nodes on x-axis
-                            values = list(network_metrics['degree_centrality'].values())
-                            chart_title = "Node Degree Centrality"
-                        else:
-                            chart_title = "Network Centrality Data Missing"
-                            metrics = []
-                            values = []
-                    else:
-                        chart_title = "Network Data Missing"
-                # Add elif blocks for other categories (credit, liquidity, etc.) as their analysis is implemented
-                # and their data structure is known. Example:
-                # elif category == "credit_risk":
-                #     default_rates = category_data.get('default_rates') # Assuming this exists
-                #     if default_rates is not None and not default_rates.empty:
-                #         # Example: Plot latest default rates by sector
-                #         latest_rates = default_rates.iloc[-1]
-                #         metrics = list(latest_rates.index)
-                #         values = list(latest_rates.values * 100) # Percentage
-                #         chart_title = "Latest Default Rates by Sector (%)"
-                #     else:
-                #         chart_title = "Credit Default Rate Data Missing"
+                     # Example: Plot degree centrality for nodes
+                     network_metrics = category_data.get('centrality', {})
+                     if network_metrics:
+                          # Use the correct key 'degree' based on analyze_network output
+                          degree_values = network_metrics.get('degree') 
+                          if degree_values and isinstance(degree_values, dict):
+                               # Sort nodes by degree for better visualization
+                               sorted_nodes = sorted(degree_values.items(), key=lambda item: item[1], reverse=True)
+                               metrics = [item[0] for item in sorted_nodes[:20]] # Show top 20 nodes
+                               values = [item[1] for item in sorted_nodes[:20]]
+                               chart_title = "Network Analysis: Top 20 Nodes by Degree"
+                          else:
+                               chart_title = "Network Analysis: Degree Data Missing/Invalid"
+                     else:
+                          chart_title = "Network Analysis: Centrality Data Missing"
+                
+                # Add elif blocks for other *implemented* categories here
+                # elif category == "credit_risk": ... etc ...
 
-                else:
-                    # Generic fallback - try to find simple key-value pairs
-                    simple_metrics = {k: v for k, v in category_data.items() if isinstance(v, (int, float))}
-                    if simple_metrics:
-                        metrics = list(simple_metrics.keys())
-                        values = list(simple_metrics.values())
-                        chart_title = f"Key Metrics for {category_display}"
-                    else:
-                        # If no simple metrics, maybe plot overall risk level?
-                        overall = category_data.get('overall_risk')
-                        if overall and isinstance(overall, dict):
-                            metrics = ['Overall Risk Score']
-                            values = [level_to_score.get(overall.get('level', 'low'), 0)]
-                            chart_title = f"Overall Risk Assessment for {category_display}"
-                        else:
-                            chart_title = f"No specific metrics available for {category_display}"
+                else: # Fallback for unimplemented/placeholder categories
+                    chart_title = f"No Detailed Metrics Implemented for {category_display}" # Default title
+                    self.logger.info(f"Attempting to display baseline overall risk for unimplemented category: {category}")
+                    # Try to plot the simulated overall risk score from the baseline scenario as a proxy
+                    try:
+                        baseline_stress_data = self.data.get('stress_tests', {}).get('baseline', {})
+                        category_baseline_data = baseline_stress_data.get(category, {})
+                        overall_baseline = category_baseline_data.get('overall_risk') # <-- This is the crucial dict
 
-                if metrics and values:
+                        if overall_baseline and isinstance(overall_baseline, dict) and 'level' in overall_baseline:
+                             metrics = ['Baseline Overall Risk Score'] # Clarify it's baseline
+                             values = [level_to_score.get(overall_baseline.get('level', 'low'), 0)]
+                             chart_title = f"{category_display}: Baseline Overall Risk is '{overall_baseline.get('level','N/A').title()}'"
+                             self.logger.info(f"Successfully found and plotted baseline overall risk for {category}.")
+                        else:
+                             # Keep metrics/values empty if baseline overall risk wasn't found as expected
+                             self.logger.warning(f"Could not find valid 'overall_risk' dict with 'level' key in baseline data for category: {category}. Found: {overall_baseline}")
+                    except Exception as fallback_ex:
+                        self.logger.error(f"Error occurred while trying to fetch baseline overall risk for {category}: {fallback_ex}", exc_info=True)
+                        # Keep metrics/values empty on error
+
+                # --- Figure Generation & Layout Update ---
+                if metrics and values: # Check if metrics/values were successfully populated above
                     fig = go.Figure(data=[
                         go.Bar(
-                            x=[m.replace('_', ' ').title() for m in metrics],
+                            x=[str(m).replace('_',' ').title() for m in metrics], # Ensure x-axis labels are strings
                             y=values,
                             marker_color='rgba(50, 171, 96, 0.6)' # Example color
                         )
                     ])
-                    fig.update_layout(
-                        title=chart_title,
-                        xaxis_title="Metric / Item",
-                        yaxis_title="Value / Score",
-                        template=settings.DEFAULT_CHART_THEME
-                    )
-                else:
-                    # If no metrics/values found after checks, display message
-                    fig.update_layout(title=chart_title if 'chart_title' in locals() else f"No Data Available for {category_display}", 
-                                      xaxis={'visible': False}, yaxis={'visible': False})
+                # else: keep fig = go.Figure() (it's initialized at the start)
+
+                # Update layout OUTSIDE the if/else for metrics/values, using the determined chart_title
+                fig.update_layout(
+                    title=chart_title, # Use the title set in the logic above
+                    xaxis_title="Metric / Item",
+                    yaxis_title="Value / Score",
+                    template=settings.DEFAULT_CHART_THEME,
+                    xaxis={'visible': bool(metrics and values)}, # Hide axis if no data
+                    yaxis={'visible': bool(metrics and values)}
+                )
 
             except Exception as e:
                 self.logger.error(f"Error updating detailed metrics for {category}: {e}", exc_info=True)
-                fig.update_layout(title=f"Error: {e}", xaxis={'visible': False}, yaxis={'visible': False})
+                fig.update_layout(title=f"Error Displaying Metrics: {e}", xaxis={'visible': False}, yaxis={'visible': False})
+            
             return header, fig
         
         @self.app.callback(
@@ -522,43 +543,37 @@ class Dashboard:
             
             try:
                 # --- Logic to find and plot relevant time series data ---
-                # This needs specific logic based on available data for each category
+                # PROBLEM: AnalysisEngine results (self.data) typically contain *metrics* calculated *from* time series,
+                # but not necessarily the raw time series themselves (like daily index levels).
+                # We need to adjust AnalysisEngine or AppManager to pass necessary raw data if we want these plots.
+                
                 ts_data = None
                 ts_title = f"Time Series Data for {category_display}"
+                
+                # Example: If market_risk analysis *did* return the sp500 series:
+                # if category == "market_risk":
+                #     market_data = self.data.get('market_risk', {})
+                #     sp500_series = market_data.get('sp500_time_series') # Hypothetical key
+                #     if sp500_series is not None and isinstance(sp500_series, pd.Series):
+                #         ts_data = sp500_series
+                #         ts_title = "Market Risk: S&P 500 Index"
 
-                if category == "market_risk":
-                    market_indices = self.data_manager.market_data.get('indices') # Use raw data or processed? Check DataManager
-                    if market_indices is not None and 'sp500' in market_indices.columns:
-                        ts_data = market_indices['sp500']
-                        ts_title = "Market Risk: S&P 500 Index" 
-                elif category == "credit_risk":
-                    default_rates = self.data_manager.credit_data.get('default_rates')
-                    if default_rates is not None and 'financial' in default_rates.columns:
-                        ts_data = default_rates['financial']
-                        ts_title = "Credit Risk: Financial Sector Default Rate"
-                # Add elif for other categories as data becomes available
+                # For now, display a message indicating limitation
+                fig.update_layout(title=f"Time Series Plotting Not Implemented for {category_display}", 
+                                  xaxis={'visible': False}, yaxis={'visible': False})
+                self.logger.warning(f"Time series plotting for {category} skipped: Raw time series data not found in analysis results structure.")
 
-                if ts_data is not None and isinstance(ts_data, pd.Series):
-                    fig = go.Figure(data=[
-                        go.Scatter(
-                            x=ts_data.index,
-                            y=ts_data.values,
-                            mode='lines',
-                            line=dict(color='rgba(0, 123, 255, 0.8)') # Example color
-                        )
-                    ])
-                    fig.update_layout(
-                        title=ts_title,
-                        xaxis_title="Date",
-                        yaxis_title="Value / Rate",
-                        template=settings.DEFAULT_CHART_THEME
-                    )
-                else:
-                    self.logger.warning(f"No suitable time series data found for category '{category}'.")
-                    fig.update_layout(title=f"No Time Series Available for {category_display}", xaxis={'visible': False}, yaxis={'visible': False})
+                # If ts_data was populated:
+                # if ts_data is not None and isinstance(ts_data, pd.Series):
+                #     fig = go.Figure(data=[ ... scatter plot ... ])
+                #     fig.update_layout(...)
+                # else:
+                #     fig.update_layout(title=f"No Time Series Available for {category_display}", xaxis={'visible': False}, yaxis={'visible': False})
+            
             except Exception as e:
                 self.logger.error(f"Error updating additional metrics for {category}: {e}", exc_info=True)
                 fig.update_layout(title=f"Error: {e}", xaxis={'visible': False}, yaxis={'visible': False})
+                
             return fig
         
         @self.app.callback(
@@ -571,29 +586,35 @@ class Dashboard:
             self.logger.debug("Updating network graph.")
 
             try:
-                network_data = self.data.get('network')
+                network_data = self.data.get('network') 
                 
                 if not network_data or not isinstance(network_data, dict):
-                    self.logger.warning("Network analysis data not found or not a dict.")
+                    self.logger.warning("Network analysis data ('network' key) not found or not a dict in self.data.")
                     fig.update_layout(title="Network Data Not Available", xaxis={'visible': False}, yaxis={'visible': False})
                     return fig
-                
-                # Check for necessary keys like 'graph', 'pos' (positions)
+                    
                 G = network_data.get('graph')
                 pos = network_data.get('pos')
                 
                 if G is None or pos is None or not isinstance(G, nx.Graph) or not isinstance(pos, dict):
-                    self.logger.warning("Network graph or positions missing/invalid in network data.")
-                    fig.update_layout(title="Network Graph Data Incomplete", xaxis={'visible': False}, yaxis={'visible': False})
-                    return fig
+                     self.logger.warning("Network graph or positions missing/invalid in network data.")
+                     fig.update_layout(title="Network Graph Data Incomplete (Missing Graph or Positions)", xaxis={'visible': False}, yaxis={'visible': False})
+                     return fig
 
                 # --- Generate Plotly traces from NetworkX graph --- 
                 edge_x, edge_y = [], []
-                for edge in G.edges():
-                    x0, y0 = pos[edge[0]]
-                    x1, y1 = pos[edge[1]]
-                    edge_x.extend([x0, x1, None])
-                    edge_y.extend([y0, y1, None])
+                if G.number_of_edges() > 0: # Check if edges exist
+                    for edge in G.edges():
+                        # Check if nodes exist in pos dictionary
+                        if edge[0] not in pos or edge[1] not in pos:
+                           self.logger.warning(f"Position missing for node in edge: {edge}")
+                           continue # Skip edge if node position is missing
+                        x0, y0 = pos[edge[0]]
+                        x1, y1 = pos[edge[1]]
+                        edge_x.extend([x0, x1, None])
+                        edge_y.extend([y0, y1, None])
+                else: self.logger.info("Network graph has no edges.")
+
 
                 edge_trace = go.Scatter(
                     x=edge_x, y=edge_y,
@@ -603,19 +624,34 @@ class Dashboard:
                 )
 
                 node_x, node_y, node_text, node_size, node_color = [], [], [], [], []
-                # Use centrality or other attributes for size/color if available
-                centrality_data = network_data.get('centrality', {}).get('degree_centrality', {})
-                max_centrality = max(centrality_data.values()) if centrality_data else 1
-
-                for node in G.nodes():
-                    x, y = pos[node]
-                    node_x.append(x)
-                    node_y.append(y)
-                    node_text.append(f"{node}\nDegree: {G.degree(node)}\nCentrality: {centrality_data.get(node, 'N/A'):.2f}")
-                    # Size/color based on centrality or degree
-                    size = 10 + 20 * (centrality_data.get(node, 0) / max_centrality) if max_centrality > 0 else 10
-                    node_size.append(size)
-                    node_color.append(size) # Color by size for example
+                
+                # Use centrality for size/color if available
+                # Use the correct key 'degree' based on analyze_network output
+                centrality_data = network_data.get('centrality', {}).get('degree', {}) 
+                max_centrality = 1 # Avoid division by zero
+                # Check if centrality_data is a dict and not empty before finding max
+                if centrality_data and isinstance(centrality_data, dict):
+                   valid_centralities = [v for v in centrality_data.values() if isinstance(v, (int, float))]
+                   if valid_centralities:
+                      max_centrality = max(valid_centralities) if max(valid_centralities) > 0 else 1
+                
+                if G.number_of_nodes() > 0:
+                    for node in G.nodes():
+                         if node not in pos:
+                             self.logger.warning(f"Position missing for node: {node}")
+                             continue # Skip node if position is missing
+                         x, y = pos[node]
+                         node_x.append(x)
+                         node_y.append(y)
+                         degree = G.degree(node) if G.has_node(node) else 0
+                         centrality_val = centrality_data.get(node, 0) if isinstance(centrality_data, dict) else 0
+                         node_text.append(f"{node}<br>Degree: {degree}<br>Centrality: {centrality_val:.2f}")
+                         
+                         # Size/color based on centrality or degree
+                         size = 10 + 20 * (centrality_val / max_centrality) if max_centrality > 0 else 10
+                         node_size.append(size)
+                         node_color.append(size) # Color by size for example
+                else: self.logger.info("Network graph has no nodes.")
 
                 node_trace = go.Scatter(
                     x=node_x, y=node_y,
@@ -648,80 +684,100 @@ class Dashboard:
                                     yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                                     template=settings.DEFAULT_CHART_THEME
                                 ))
+            
             except Exception as e:
                 self.logger.error(f"Error updating network graph: {e}", exc_info=True)
-                fig.update_layout(title=f"Error: {e}", xaxis={'visible': False}, yaxis={'visible': False})
+                fig.update_layout(title=f"Error Displaying Network: {e}", xaxis={'visible': False}, yaxis={'visible': False})
+            
             return fig
         
         @self.app.callback(
             Output("stress-test-chart", "figure"),
-            [Input("scenario-dropdown", "value"), 
-             Input("risk-category-dropdown", "value")]
+            Input("scenario-dropdown", "value")
         )
-        def update_stress_test_chart(selected_scenario, selected_category):
+        def update_stress_test_chart(selected_scenario):
             """Update stress test results chart using actual data for selected scenario"""
             fig = go.Figure()
             scenario_display = selected_scenario.replace('_', ' ').title() if selected_scenario else "No Scenario"
             self.logger.debug(f"Updating stress test chart for scenario: {selected_scenario}")
+            level_to_score = {'low': 25, 'medium': 50, 'high': 75, 'critical': 100}
 
             if not selected_scenario:
-                return go.Figure()
+                # Maybe default to baseline or show a message?
+                selected_scenario = 'baseline' 
+                scenario_display = 'Baseline'
+                # return go.Figure() # Or show baseline by default
 
             try:
                 stress_test_results = self.data.get('stress_tests')
                 if not stress_test_results or not isinstance(stress_test_results, dict):
-                    self.logger.warning("Stress test results data not found or not a dict.")
+                    self.logger.warning("Stress test results data ('stress_tests' key) not found or not a dict in self.data.")
                     fig.update_layout(title="Stress Test Data Not Available", xaxis={'visible': False}, yaxis={'visible': False})
                     return fig
                 
                 scenario_data = stress_test_results.get(selected_scenario)
                 if not scenario_data or not isinstance(scenario_data, dict):
-                    self.logger.warning(f"Data for stress scenario '{selected_scenario}' not found.")
+                    self.logger.warning(f"Data for stress scenario '{selected_scenario}' not found in stress_tests dict.")
                     fig.update_layout(title=f"Data for Scenario '{scenario_display}' Not Available", xaxis={'visible': False}, yaxis={'visible': False})
                     return fig
 
-                # --- Plotting logic for stress test results --- 
-                # Assuming scenario_data is a dictionary like: {'risk_category': {'metric': value, 'impact_score': score}, ...}
-                # Or maybe {'metric_name': impact_score, ...}
-                # Needs clarification based on _run_scenario output in AnalysisEngine
-
-                # Example: Plot impact scores for different risk categories under the selected scenario
-                risk_categories = list(scenario_data.keys()) # Assuming keys are risk categories
+                # Plot impact scores (overall risk score) for different risk categories under the selected scenario
+                # Assumes scenario_data structure: {'market_risk': {'overall_risk': {'score': 2.5, 'level': 'high'}}, ...}
+                risk_categories = list(scenario_data.keys()) 
                 impact_scores = []
                 category_labels = []
+                level_labels = []
 
                 for cat in risk_categories:
-                    # Try to find an overall impact score for the category
-                    impact = scenario_data[cat].get('impact_score') # Hypothetical structure
-                    if impact is None:
-                        # Maybe look for a primary metric's value?
-                        # This part is highly dependent on the actual structure
-                        impact = scenario_data[cat].get('overall_risk', {}).get('score', 0) # Guessing
+                    # Find the overall risk assessment for this category within this scenario
+                    overall_risk_data = scenario_data[cat].get('overall_risk')
+                    if overall_risk_data and isinstance(overall_risk_data, dict):
+                        score = overall_risk_data.get('score')
+                        level = overall_risk_data.get('level', 'low')
+                        
+                        # Use score if available, otherwise map level
+                        if score is not None:
+                            # Normalize score (assuming 1-4) to 0-100
+                            impact_scores.append(min(100, max(0, (score - 1) / 3 * 100)))
+                        else:
+                            impact_scores.append(level_to_score.get(level, 0))
+                            
+                        category_labels.append(cat.replace('_',' ').title())
+                        level_labels.append(level.title())
+                    else:
+                         self.logger.warning(f"Could not find 'overall_risk' dict for category '{cat}' in scenario '{selected_scenario}'")
 
-                    if isinstance(impact, (int, float)): # Only plot if we found a number
-                        impact_scores.append(impact)
-                        category_labels.append(cat.replace('_', ' ').title())
 
                 if impact_scores and category_labels:
                     fig = go.Figure(data=[
                         go.Bar(
                             x=category_labels,
                             y=impact_scores,
-                            text=[f'{s:.1f}' for s in impact_scores], # Show score on bar
-                            textposition='auto'
-                            # Add colors based on score? 
+                            text=level_labels, # Show risk level
+                            hoverinfo='x+text+y',
+                            textposition='none',
+                            marker=dict(
+                                color=impact_scores, # Color bars based on score
+                                colorscale=[[0, 'green'], [0.33, 'yellow'], [0.66, 'orange'], [1, 'red']], 
+                                cmin=0,
+                                cmax=100,
+                                colorbar=dict(title='Risk Score')
+                            )
                         )
                     ])
                     fig.update_layout(
-                        title=f"Stress Test Impacts ({scenario_display} Scenario)",
+                        title=f"Overall Risk Scores by Category ({scenario_display} Scenario)",
                         xaxis_title="Risk Category",
-                        yaxis_title="Impact Score / Change",
+                        yaxis_title="Impact Score (0-100)",
+                        yaxis=dict(range=[0, 100]), # Fixed scale
                         template=settings.DEFAULT_CHART_THEME
                     )
                 else:
-                    self.logger.warning(f"Could not extract impact scores for scenario '{selected_scenario}'. Data structure: {scenario_data}")
+                    self.logger.warning(f"Could not extract impact scores for scenario '{selected_scenario}'. Scenario data structure: {scenario_data}")
                     fig.update_layout(title=f"Impact Scores Not Available for '{scenario_display}'", xaxis={'visible': False}, yaxis={'visible': False})
+            
             except Exception as e:
                 self.logger.error(f"Error updating stress test chart for scenario {selected_scenario}: {e}", exc_info=True)
-                fig.update_layout(title=f"Error: {e}", xaxis={'visible': False}, yaxis={'visible': False})
+                fig.update_layout(title=f"Error Displaying Stress Test: {e}", xaxis={'visible': False}, yaxis={'visible': False})
+                
             return fig 

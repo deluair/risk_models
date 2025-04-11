@@ -278,14 +278,17 @@ class AnalysisEngine:
             # Calculate network metrics
             results['centrality'] = {}
             
-            # Degree centrality
-            results['centrality']['degree'] = nx.degree_centrality(G)
+            # Degree centrality (Using degree view directly is often sufficient)
+            # results['centrality']['degree'] = nx.degree_centrality(G)
+            results['centrality']['degree'] = {node: val for node, val in G.degree()} # Store raw degree
             
             # In-degree centrality (vulnerability)
-            results['centrality']['in_degree'] = nx.in_degree_centrality(G)
+            # results['centrality']['in_degree'] = nx.in_degree_centrality(G)
+            results['centrality']['in_degree'] = {node: val for node, val in G.in_degree()}
             
             # Out-degree centrality (impact on others)
-            results['centrality']['out_degree'] = nx.out_degree_centrality(G)
+            # results['centrality']['out_degree'] = nx.out_degree_centrality(G)
+            results['centrality']['out_degree'] = {node: val for node, val in G.out_degree()}
             
             # Betweenness centrality
             results['centrality']['betweenness'] = nx.betweenness_centrality(G, weight='weight')
@@ -334,14 +337,37 @@ class AnalysisEngine:
             results['sorted_importance'] = sorted_importance
             
             # Network-level metrics
+            # Ensure graph has nodes/edges before calculating metrics that require them
+            undirected_G = G.to_undirected()
+            is_connected = nx.is_connected(undirected_G) if len(G) > 0 else False
+            # is_strongly_connected = nx.is_strongly_connected(G) if len(G) > 0 else False # expensive
+            
             results['network_metrics'] = {
+                'nodes': G.number_of_nodes(),
+                'edges': G.number_of_edges(),
                 'density': nx.density(G),
-                'transitivity': nx.transitivity(G),
-                'reciprocity': nx.reciprocity(G),
-                'diameter': nx.diameter(G.to_undirected()) if nx.is_connected(G.to_undirected()) else float('inf'),
-                'average_shortest_path': nx.average_shortest_path_length(G) if nx.is_strongly_connected(G) else None,
-                'assortativity': nx.degree_assortativity_coefficient(G)
+                'transitivity': nx.transitivity(G) if len(G) > 0 else 0,
+                'reciprocity': nx.reciprocity(G) if len(G) > 0 else 0,
+                # 'diameter': nx.diameter(undirected_G) if is_connected else float('inf'), # Can be slow
+                # 'average_shortest_path': nx.average_shortest_path_length(G) if is_strongly_connected else None, # Slow & needs strong connection
+                'assortativity': nx.degree_assortativity_coefficient(G, weight='weight') if G.number_of_edges() > 0 else 0
             }
+            
+            # --- Add Graph and Positions for Visualization ---
+            if G.number_of_nodes() > 0:
+                try:
+                    # Calculate positions (can be computationally intensive for large graphs)
+                    # Use a fixed seed for reproducible layouts
+                    results['pos'] = nx.spring_layout(G, seed=42, k=0.5) # Adjust k for spacing if needed
+                except Exception as layout_error:
+                    self.logger.warning(f"Could not calculate graph layout: {layout_error}")
+                    results['pos'] = None # Set pos to None if layout fails
+            else:
+                 results['pos'] = {}
+                 
+            # Add the graph object itself (ensure it's serializable if needed elsewhere, but fine for in-memory Dash)
+            results['graph'] = G 
+            # -------------------------------------------------
             
             self.logger.info("Network analysis completed successfully")
             return results
@@ -375,34 +401,85 @@ class AnalysisEngine:
             raise
     
     def _run_scenario(self, scenario: str) -> Dict[str, Any]:
-        """Run a specific stress test scenario
+        """Run a specific stress test scenario by simulating impacts on baseline analysis.
         
         Args:
             scenario: Name of the scenario to run
             
         Returns:
-            Dictionary of scenario results
-        """
-        self.logger.info(f"Running stress scenario: {scenario}")
+            Dictionary of scenario results, structured similarly to main analysis results.
+        """ 
+        self.logger.info(f"Running stress scenario simulation: {scenario}")
         
-        # Placeholder function that would typically:
-        # 1. Apply shocks to market factors based on scenario
-        # 2. Propagate impacts across the financial network
-        # 3. Calculate resulting risk metrics
+        # NOTE: This is still a simulation. Proper implementation would involve
+        # applying shocks to input data and re-running models.
         
-        # For demonstration we'll return placeholder results
-        return {
+        scenario_results = {}
+        
+        # Define risk categories to analyze (could come from settings)
+        risk_categories_to_analyze = [
+            'market_risk', 'credit_risk', 'liquidity_risk', 'operational_risk',
+            'climate_risk', 'cyber_risk', 'ai_risk', 'digitalization',
+            'nonbank_intermediation', 'global_architecture' # Assuming these have corresponding analyze_ methods
+        ]
+        
+        # Define simple impact multipliers based on scenario name (adjust as needed)
+        impact_multiplier = 1.0
+        if 'crash' in scenario or 'adverse' in scenario or 'deterioration' in scenario:
+            impact_multiplier = 1.5 # Increase risk score
+        if 'severely' in scenario or 'combined' in scenario:
+             impact_multiplier = 2.0 # Increase risk score more
+        if 'climate' in scenario: impact_multiplier = 1.3
+        if 'cyber' in scenario: impact_multiplier = 1.4
+
+        risk_level_map = {1: 'low', 2: 'medium', 3: 'high', 4: 'critical'}
+        score_to_level = lambda s: risk_level_map.get(min(4, max(1, int(np.ceil(s)))), 'low')
+
+        # Run baseline analysis for each category and simulate stress impact
+        for category in risk_categories_to_analyze:
+            try:
+                # Dynamically get the analysis method for the category
+                analysis_method_name = f"analyze_{category}"
+                if hasattr(self, analysis_method_name) and callable(getattr(self, analysis_method_name)):
+                    # Get baseline results for this category
+                    baseline_result = getattr(self, analysis_method_name)()
+                    
+                    # Simulate stressed result based on baseline overall risk
+                    stressed_result = baseline_result.copy() # Start with baseline structure
+                    baseline_overall = baseline_result.get('overall_risk', {'score': 1.5, 'level': 'low'}) # Default if missing
+                    
+                    # Simulate increased risk score
+                    stressed_score = min(4.0, baseline_overall.get('score', 1.5) * impact_multiplier) 
+                    stressed_level = score_to_level(stressed_score)
+                    
+                    stressed_result['overall_risk'] = {
+                        'score': stressed_score,
+                        'level': stressed_level,
+                        'baseline_level': baseline_overall.get('level', 'low'),
+                        'baseline_score': baseline_overall.get('score', 1.5)
+                    }
+                    scenario_results[category] = stressed_result
+                else:
+                    self.logger.warning(f"Analysis method {analysis_method_name} not found for scenario {scenario}.")
+                    # Add placeholder if method doesn't exist
+                    stressed_score = min(4.0, 1.5 * impact_multiplier)
+                    stressed_level = score_to_level(stressed_score)
+                    scenario_results[category] = {
+                         'overall_risk': {'score': stressed_score, 'level': stressed_level} 
+                    }
+            except Exception as cat_ex:
+                 self.logger.error(f"Error analyzing category '{category}' during scenario '{scenario}': {cat_ex}", exc_info=True)
+                 scenario_results[category] = {'error': str(cat_ex), 'overall_risk': {'score': 4.0, 'level': 'critical'}} # Assign high risk on error
+                 
+        # Add other general scenario info if needed
+        scenario_results['scenario_info'] = {
             'name': scenario,
-            'description': f"Stress test scenario: {scenario}",
+            'description': f"Simulated stress test scenario: {scenario}",
             'timestamp': datetime.now().isoformat(),
-            'impact': {
-                'market_risk': np.random.uniform(0.5, 5.0),
-                'credit_risk': np.random.uniform(0.5, 5.0),
-                'liquidity_risk': np.random.uniform(0.5, 5.0),
-                'operational_risk': np.random.uniform(0.5, 5.0)
-            },
-            'systemic_risk_change': np.random.uniform(0.3, 3.0)
+            'simulated_impact_multiplier': impact_multiplier
         }
+
+        return scenario_results
     
     def calculate_systemic_risk_metrics(self) -> Dict[str, Any]:
         """Calculate aggregate systemic risk metrics
@@ -412,21 +489,33 @@ class AnalysisEngine:
         """
         self.logger.info("Calculating systemic risk metrics")
         
-        # Placeholder function that would:
-        # 1. Combine network analysis with individual risk metrics
-        # 2. Calculate system-wide vulnerability measures
-        # 3. Identify key transmission channels
-        
-        # For demonstration, return placeholder metrics
+        # Placeholder function - NEEDS PROPER IMPLEMENTATION
+        # For now, provide dummy data in the structure expected by the dashboard's Risk Summary
         results = {
-            'absorption_ratio': np.random.uniform(0.5, 0.9),
-            'systemic_expected_shortfall': np.random.uniform(5000000, 50000000),
-            'conditional_value_at_risk': np.random.uniform(0.02, 0.1),
-            'network_vulnerability_index': np.random.uniform(0.3, 0.8),
-            'financial_stress_index': np.random.uniform(0.2, 0.7)
+            'financial_stress_index': np.random.uniform(0.2, 0.7),
+            # Add other top-level systemic metrics here if needed
         }
-        
-        # Risk level assessment
+
+        # --- Dummy Overall Risk by Category --- 
+        # Create placeholder risk levels for categories based on FSI
+        overall_risk_by_category = {}
+        fsi = results['financial_stress_index']
+        base_score = 1.0 + fsi * 3.0 # Map FSI (0.2-0.7) roughly to score (1.6-3.1)
+        risk_level_map = {1: 'low', 2: 'medium', 3: 'high', 4: 'critical'}
+        score_to_level = lambda s: risk_level_map.get(min(4, max(1, int(np.ceil(s)))), 'low')
+
+        for category in settings.RISK_CATEGORIES:
+            # Slightly randomize score around base FSI mapping
+            cat_score = min(4.0, max(1.0, base_score + np.random.uniform(-0.5, 0.5)))
+            cat_level = score_to_level(cat_score)
+            overall_risk_by_category[category] = {
+                'score': cat_score,
+                'level': cat_level
+            }
+        results['overall_risk_by_category'] = overall_risk_by_category
+        # -----------------------------------------
+
+        # Risk level assessment (based on FSI)
         if results['financial_stress_index'] > 0.6:
             results['risk_level'] = 'critical'
         elif results['financial_stress_index'] > 0.4:
