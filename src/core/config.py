@@ -81,7 +81,20 @@ class Settings:
         "severely_adverse", 
         "climate_transition",
         "cyber_attack",
-        "liquidity_freeze"
+        "liquidity_freeze",
+        "rate_hike",
+        "rate_cut",
+        "market_crash",
+        "banking_crisis",
+        "sovereign_debt_crisis",
+        "currency_crisis",
+        "global_recession",
+        "tech_bubble_burst",
+        "supply_chain_disruption",
+        "pandemic",
+        "inflation_shock",
+        "combined_market_cyber",
+        "combined_climate_sovereign"
     ])
     
     # Risk thresholds

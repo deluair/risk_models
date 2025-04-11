@@ -27,13 +27,25 @@ def main():
         risk_system = RiskAnalysisSystem()
         
         # Load and prepare data
+        logger.info("Loading data...")
         risk_system.load_data()
         
         # Run analysis modules
-        risk_system.run_analysis()
+        logger.info("Running risk analysis...")
+        results = risk_system.run_analysis()
+        
+        # Log scenario information
+        stress_tests = results.get("stress_tests", {})
+        if stress_tests:
+            available_scenarios = list(stress_tests.keys())
+            logger.info(f"Analysis complete with {len(available_scenarios)} stress test scenarios available")
+            logger.info(f"Scenarios: {', '.join(available_scenarios)}")
+        else:
+            logger.warning("No stress test scenarios were generated during analysis")
         
         # Start dashboard (if in dashboard mode)
         if settings.RUN_DASHBOARD:
+            logger.info("Starting dashboard...")
             risk_system.start_dashboard()
             
         logger.info("Risk Analysis System completed successfully")

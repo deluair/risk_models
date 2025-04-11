@@ -153,95 +153,89 @@ class AnalysisEngine:
             self.logger.error(f"Error analyzing market risk: {e}")
             raise
     
-    def analyze_credit_risk(self) -> Dict[str, Any]:
-        """Analyze credit risk
+    def _get_placeholder_result(self, category_name: str) -> Dict[str, Any]:
+        """Generates a structured placeholder result for unimplemented analysis functions."""
+        self.logger.debug(f"Generating placeholder result for {category_name}")
+        # Simulate overall risk
+        risk_level_map = {1: 'low', 2: 'medium', 3: 'high', 4: 'critical'}
+        score_to_level = lambda s: risk_level_map.get(min(4, max(1, int(np.ceil(s)))), 'low')
+        simulated_score = np.random.uniform(1.0, 4.0)
+        simulated_level = score_to_level(simulated_score)
         
-        Returns:
-            Dictionary of credit risk metrics and analysis results
-        """
-        self.logger.info("Analyzing credit risk")
+        # Simulate some dummy metrics
+        dummy_metrics = {
+            f'metric_{category_name}_1': np.random.rand() * 100,
+            f'metric_{category_name}_2': np.random.rand() * 50
+        }
+        
+        # Simulate dummy time series (optional, might be large)
+        # dates = pd.date_range(start='2023-01-01', periods=10, freq='D')
+        # dummy_ts = pd.Series(np.random.randn(10).cumsum(), index=dates)
+
+        return {
+            'overall_risk': {
+                'score': simulated_score,
+                'level': simulated_level,
+                'status': 'placeholder' # Mark as placeholder
+            },
+            'key_metrics': dummy_metrics,
+            # 'sample_timeseries': dummy_ts # Uncomment to add dummy time series
+            'status': 'placeholder'
+        }
+
+    def analyze_credit_risk(self) -> Dict[str, Any]:
+        """Analyze credit risk"""
+        self.logger.info("Analyzing credit risk (Placeholder)")
         # Placeholder for credit risk analysis
-        return {}
+        return self._get_placeholder_result("credit_risk")
     
     def analyze_liquidity_risk(self) -> Dict[str, Any]:
-        """Analyze liquidity risk
-        
-        Returns:
-            Dictionary of liquidity risk metrics and analysis results
-        """
-        self.logger.info("Analyzing liquidity risk")
+        """Analyze liquidity risk"""
+        self.logger.info("Analyzing liquidity risk (Placeholder)")
         # Placeholder for liquidity risk analysis
-        return {}
+        return self._get_placeholder_result("liquidity_risk")
     
     def analyze_operational_risk(self) -> Dict[str, Any]:
-        """Analyze operational risk
-        
-        Returns:
-            Dictionary of operational risk metrics and analysis results
-        """
-        self.logger.info("Analyzing operational risk")
+        """Analyze operational risk"""
+        self.logger.info("Analyzing operational risk (Placeholder)")
         # Placeholder for operational risk analysis
-        return {}
+        return self._get_placeholder_result("operational_risk")
     
     def analyze_climate_risk(self) -> Dict[str, Any]:
-        """Analyze climate risk
-        
-        Returns:
-            Dictionary of climate risk metrics and analysis results
-        """
-        self.logger.info("Analyzing climate risk")
+        """Analyze climate risk"""
+        self.logger.info("Analyzing climate risk (Placeholder)")
         # Placeholder for climate risk analysis
-        return {}
+        return self._get_placeholder_result("climate_risk")
     
     def analyze_cyber_risk(self) -> Dict[str, Any]:
-        """Analyze cyber risk
-        
-        Returns:
-            Dictionary of cyber risk metrics and analysis results
-        """
-        self.logger.info("Analyzing cyber risk")
+        """Analyze cyber risk"""
+        self.logger.info("Analyzing cyber risk (Placeholder)")
         # Placeholder for cyber risk analysis
-        return {}
+        return self._get_placeholder_result("cyber_risk")
     
     def analyze_ai_risk(self) -> Dict[str, Any]:
-        """Analyze AI risk
-        
-        Returns:
-            Dictionary of AI risk metrics and analysis results
-        """
-        self.logger.info("Analyzing AI risk")
+        """Analyze AI risk"""
+        self.logger.info("Analyzing AI risk (Placeholder)")
         # Placeholder for AI risk analysis
-        return {}
+        return self._get_placeholder_result("ai_risk")
     
     def analyze_digitalization(self) -> Dict[str, Any]:
-        """Analyze digitalization risks
-        
-        Returns:
-            Dictionary of digitalization risk metrics and analysis results
-        """
-        self.logger.info("Analyzing digitalization risks")
+        """Analyze digitalization risks"""
+        self.logger.info("Analyzing digitalization risks (Placeholder)")
         # Placeholder for digitalization risk analysis
-        return {}
+        return self._get_placeholder_result("digitalization")
     
     def analyze_nonbank_intermediation(self) -> Dict[str, Any]:
-        """Analyze nonbank intermediation risks
-        
-        Returns:
-            Dictionary of nonbank intermediation risk metrics and analysis results
-        """
-        self.logger.info("Analyzing nonbank intermediation risks")
+        """Analyze nonbank intermediation risks"""
+        self.logger.info("Analyzing nonbank intermediation risks (Placeholder)")
         # Placeholder for nonbank intermediation risk analysis
-        return {}
+        return self._get_placeholder_result("nonbank_intermediation")
     
     def analyze_global_architecture(self) -> Dict[str, Any]:
-        """Analyze global financial architecture risks
-        
-        Returns:
-            Dictionary of global architecture risk metrics and analysis results
-        """
-        self.logger.info("Analyzing global financial architecture risks")
+        """Analyze global financial architecture risks"""
+        self.logger.info("Analyzing global financial architecture risks (Placeholder)")
         # Placeholder for global architecture risk analysis
-        return {}
+        return self._get_placeholder_result("global_architecture")
     
     def analyze_network(self) -> Dict[str, Any]:
         """Analyze network interconnectedness and systemic risk
@@ -367,6 +361,7 @@ class AnalysisEngine:
                  
             # Add the graph object itself (ensure it's serializable if needed elsewhere, but fine for in-memory Dash)
             results['graph'] = G 
+            results['status'] = 'implemented' # Mark as implemented
             # -------------------------------------------------
             
             self.logger.info("Network analysis completed successfully")
@@ -420,17 +415,197 @@ class AnalysisEngine:
         risk_categories_to_analyze = [
             'market_risk', 'credit_risk', 'liquidity_risk', 'operational_risk',
             'climate_risk', 'cyber_risk', 'ai_risk', 'digitalization',
-            'nonbank_intermediation', 'global_architecture' # Assuming these have corresponding analyze_ methods
+            'nonbank_intermediation', 'global_architecture'
         ]
         
-        # Define simple impact multipliers based on scenario name (adjust as needed)
-        impact_multiplier = 1.0
-        if 'crash' in scenario or 'adverse' in scenario or 'deterioration' in scenario:
-            impact_multiplier = 1.5 # Increase risk score
-        if 'severely' in scenario or 'combined' in scenario:
-             impact_multiplier = 2.0 # Increase risk score more
-        if 'climate' in scenario: impact_multiplier = 1.3
-        if 'cyber' in scenario: impact_multiplier = 1.4
+        # Define scenario descriptions and impact multipliers
+        scenario_impacts = {
+            'baseline': {
+                'description': 'Baseline scenario with current market conditions',
+                'multiplier': 1.0,
+                'category_multipliers': {}  # No specific category effects
+            },
+            'adverse': {
+                'description': 'Adverse scenario with moderate economic deterioration',
+                'multiplier': 1.5,
+                'category_multipliers': {
+                    'market_risk': 1.7,
+                    'credit_risk': 1.8,
+                    'liquidity_risk': 1.6
+                }
+            },
+            'severely_adverse': {
+                'description': 'Severely adverse scenario with significant economic deterioration',
+                'multiplier': 2.0,
+                'category_multipliers': {
+                    'market_risk': 2.2,
+                    'credit_risk': 2.3,
+                    'liquidity_risk': 2.1,
+                    'operational_risk': 1.8
+                }
+            },
+            'climate_transition': {
+                'description': 'Rapid climate transition with carbon pricing and stranded assets',
+                'multiplier': 1.3,
+                'category_multipliers': {
+                    'climate_risk': 2.5,
+                    'market_risk': 1.5,
+                    'credit_risk': 1.4
+                }
+            },
+            'cyber_attack': {
+                'description': 'Major cyber attack on financial infrastructure',
+                'multiplier': 1.4,
+                'category_multipliers': {
+                    'cyber_risk': 2.8,
+                    'operational_risk': 2.2,
+                    'digitalization': 1.8
+                }
+            },
+            'liquidity_freeze': {
+                'description': 'Systemic liquidity freeze in markets',
+                'multiplier': 1.6,
+                'category_multipliers': {
+                    'liquidity_risk': 2.9,
+                    'market_risk': 2.0,
+                    'credit_risk': 1.7
+                }
+            },
+            'rate_hike': {
+                'description': 'Sudden central bank rate hike scenario',
+                'multiplier': 1.4,
+                'category_multipliers': {
+                    'market_risk': 1.8,
+                    'credit_risk': 1.6,
+                    'liquidity_risk': 1.5
+                }
+            },
+            'rate_cut': {
+                'description': 'Emergency central bank rate cut scenario',
+                'multiplier': 1.2,
+                'category_multipliers': {
+                    'market_risk': 1.5,
+                    'liquidity_risk': 1.3
+                }
+            },
+            'market_crash': {
+                'description': 'Severe market crash with 30%+ equity decline',
+                'multiplier': 1.9,
+                'category_multipliers': {
+                    'market_risk': 2.7,
+                    'liquidity_risk': 2.3,
+                    'credit_risk': 1.9
+                }
+            },
+            'banking_crisis': {
+                'description': 'Systemic banking crisis with multiple failures',
+                'multiplier': 2.1,
+                'category_multipliers': {
+                    'credit_risk': 2.7,
+                    'liquidity_risk': 2.5,
+                    'market_risk': 2.2,
+                    'nonbank_intermediation': 2.0
+                }
+            },
+            'sovereign_debt_crisis': {
+                'description': 'Sovereign debt crisis with potential defaults',
+                'multiplier': 1.9,
+                'category_multipliers': {
+                    'credit_risk': 2.5,
+                    'market_risk': 2.1,
+                    'global_architecture': 2.4
+                }
+            },
+            'currency_crisis': {
+                'description': 'Major currency devaluation and capital flight',
+                'multiplier': 1.7,
+                'category_multipliers': {
+                    'market_risk': 2.3,
+                    'liquidity_risk': 2.0,
+                    'global_architecture': 1.9
+                }
+            },
+            'global_recession': {
+                'description': 'Severe global recession with widespread impacts',
+                'multiplier': 2.2,
+                'category_multipliers': {
+                    'market_risk': 2.4,
+                    'credit_risk': 2.3,
+                    'liquidity_risk': 2.2,
+                    'operational_risk': 1.8,
+                    'nonbank_intermediation': 2.0
+                }
+            },
+            'tech_bubble_burst': {
+                'description': 'Technology sector bubble burst with contagion',
+                'multiplier': 1.6,
+                'category_multipliers': {
+                    'market_risk': 2.3,
+                    'credit_risk': 1.8,
+                    'ai_risk': 2.1,
+                    'digitalization': 2.0
+                }
+            },
+            'supply_chain_disruption': {
+                'description': 'Major global supply chain disruption',
+                'multiplier': 1.5,
+                'category_multipliers': {
+                    'operational_risk': 2.0,
+                    'market_risk': 1.7,
+                    'liquidity_risk': 1.6
+                }
+            },
+            'pandemic': {
+                'description': 'Global pandemic with economic shutdowns',
+                'multiplier': 1.8,
+                'category_multipliers': {
+                    'operational_risk': 2.4,
+                    'market_risk': 2.1,
+                    'credit_risk': 2.0,
+                    'liquidity_risk': 1.9
+                }
+            },
+            'inflation_shock': {
+                'description': 'Sudden inflation shock with price instability',
+                'multiplier': 1.7,
+                'category_multipliers': {
+                    'market_risk': 2.2,
+                    'credit_risk': 1.8,
+                    'liquidity_risk': 1.7
+                }
+            },
+            'combined_market_cyber': {
+                'description': 'Combined market crash and cyber attack scenario',
+                'multiplier': 2.3,
+                'category_multipliers': {
+                    'market_risk': 2.7,
+                    'cyber_risk': 2.8,
+                    'operational_risk': 2.4,
+                    'liquidity_risk': 2.2
+                }
+            },
+            'combined_climate_sovereign': {
+                'description': 'Combined climate transition and sovereign debt crisis',
+                'multiplier': 2.2,
+                'category_multipliers': {
+                    'climate_risk': 2.6,
+                    'credit_risk': 2.5,
+                    'market_risk': 2.3,
+                    'global_architecture': 2.4
+                }
+            }
+        }
+        
+        # Get scenario impact data or use default values
+        scenario_info = scenario_impacts.get(scenario, {
+            'description': f"Simulated stress test scenario: {scenario}",
+            'multiplier': 1.5,
+            'category_multipliers': {}
+        })
+        
+        impact_multiplier = scenario_info['multiplier']
+        category_multipliers = scenario_info['category_multipliers']
+        scenario_description = scenario_info['description']
 
         risk_level_map = {1: 'low', 2: 'medium', 3: 'high', 4: 'critical'}
         score_to_level = lambda s: risk_level_map.get(min(4, max(1, int(np.ceil(s)))), 'low')
@@ -448,35 +623,61 @@ class AnalysisEngine:
                     stressed_result = baseline_result.copy() # Start with baseline structure
                     baseline_overall = baseline_result.get('overall_risk', {'score': 1.5, 'level': 'low'}) # Default if missing
                     
+                    # Apply category-specific multiplier if available, otherwise use general multiplier
+                    category_multiplier = category_multipliers.get(category, impact_multiplier)
+                    
                     # Simulate increased risk score
-                    stressed_score = min(4.0, baseline_overall.get('score', 1.5) * impact_multiplier) 
+                    stressed_score = min(4.0, baseline_overall.get('score', 1.5) * category_multiplier) 
                     stressed_level = score_to_level(stressed_score)
+                    
+                    # Add impact relative to baseline for visualization
+                    impact_percent = ((stressed_score - baseline_overall.get('score', 1.5)) / baseline_overall.get('score', 1.5)) * 100
                     
                     stressed_result['overall_risk'] = {
                         'score': stressed_score,
                         'level': stressed_level,
                         'baseline_level': baseline_overall.get('level', 'low'),
-                        'baseline_score': baseline_overall.get('score', 1.5)
+                        'baseline_score': baseline_overall.get('score', 1.5),
+                        'impact_percent': impact_percent,
+                        # Add status from baseline if available
+                        'status': baseline_overall.get('status', 'placeholder') 
                     }
                     scenario_results[category] = stressed_result
                 else:
                     self.logger.warning(f"Analysis method {analysis_method_name} not found for scenario {scenario}.")
                     # Add placeholder if method doesn't exist
-                    stressed_score = min(4.0, 1.5 * impact_multiplier)
+                    category_multiplier = category_multipliers.get(category, impact_multiplier)
+                    stressed_score = min(4.0, 1.5 * category_multiplier)
                     stressed_level = score_to_level(stressed_score)
                     scenario_results[category] = {
-                         'overall_risk': {'score': stressed_score, 'level': stressed_level} 
+                         'overall_risk': {
+                             'score': stressed_score, 
+                             'level': stressed_level,
+                             'baseline_score': 1.5,
+                             'baseline_level': 'low',
+                             'impact_percent': ((stressed_score - 1.5) / 1.5) * 100
+                         } 
                     }
             except Exception as cat_ex:
                  self.logger.error(f"Error analyzing category '{category}' during scenario '{scenario}': {cat_ex}", exc_info=True)
-                 scenario_results[category] = {'error': str(cat_ex), 'overall_risk': {'score': 4.0, 'level': 'critical'}} # Assign high risk on error
+                 scenario_results[category] = {
+                     'error': str(cat_ex), 
+                     'overall_risk': {
+                         'score': 4.0, 
+                         'level': 'critical',
+                         'baseline_score': 1.5,
+                         'baseline_level': 'low',
+                         'impact_percent': 166.7  # (4.0 - 1.5) / 1.5 * 100
+                     }
+                 }
                  
-        # Add other general scenario info if needed
+        # Add general scenario info
         scenario_results['scenario_info'] = {
             'name': scenario,
-            'description': f"Simulated stress test scenario: {scenario}",
+            'description': scenario_description,
             'timestamp': datetime.now().isoformat(),
-            'simulated_impact_multiplier': impact_multiplier
+            'general_impact_multiplier': impact_multiplier,
+            'category_specific_multipliers': category_multipliers
         }
 
         return scenario_results
@@ -510,7 +711,8 @@ class AnalysisEngine:
             cat_level = score_to_level(cat_score)
             overall_risk_by_category[category] = {
                 'score': cat_score,
-                'level': cat_level
+                'level': cat_level,
+                'status': 'placeholder' # Mark as placeholder
             }
         results['overall_risk_by_category'] = overall_risk_by_category
         # -----------------------------------------

@@ -33,7 +33,10 @@ class RiskAnalysisSystem:
         )
         # Initialize analysis_results BEFORE initializing Dashboard
         self.analysis_results = {}
-        self.dashboard = Dashboard(self.analysis_results)
+        
+        # Move dashboard initialization to after analysis is run
+        # Dashboard will be initialized in start_dashboard method
+        self.dashboard = None
         
         # Track execution state
         self.is_data_loaded = False
@@ -89,11 +92,20 @@ class RiskAnalysisSystem:
             # Run network analysis
             self.analysis_results["network"] = self.analysis_engine.analyze_network()
             
-            # Run stress tests
+            # Run stress tests - make sure all scenarios from settings are used
+            self.logger.info(f"Running stress tests for {len(settings.STRESS_TEST_SCENARIOS)} scenarios")
             self.analysis_results["stress_tests"] = self.analysis_engine.run_stress_tests()
+            # Verify that all scenarios were processed
+            if self.analysis_results["stress_tests"]:
+                processed_scenarios = list(self.analysis_results["stress_tests"].keys())
+                self.logger.info(f"Processed {len(processed_scenarios)} stress test scenarios: {', '.join(processed_scenarios)}")
+                # Check if any scenarios from settings are missing
+                missing_scenarios = [s for s in settings.STRESS_TEST_SCENARIOS if s not in processed_scenarios]
+                if missing_scenarios:
+                    self.logger.warning(f"Some stress test scenarios were not processed: {', '.join(missing_scenarios)}")
             
             # Calculate aggregate systemic risk metrics
-            self.analysis_results["systemic"] = self.analysis_engine.calculate_systemic_risk_metrics()
+            self.analysis_results["systemic_risk"] = self.analysis_engine.calculate_systemic_risk_metrics()
             
             self.logger.info("Risk analysis completed successfully")
             return self.analysis_results
@@ -111,8 +123,19 @@ class RiskAnalysisSystem:
                 self.logger.warning("No analysis results found. Running analysis first.")
                 self.run_analysis()
             
-            # No need to call update_data anymore
-            # self.dashboard.update_data(self.analysis_results)
+            # Create the dashboard with the analysis results
+            if self.dashboard is None:
+                self.logger.info("Initializing dashboard with analysis results")
+                self.dashboard = Dashboard(self.analysis_results)
+                
+                # Log the available scenarios
+                available_scenarios = list(self.analysis_results.get('stress_tests', {}).keys())
+                self.logger.info(f"Dashboard initialized with {len(available_scenarios)} scenarios: {', '.join(available_scenarios)}")
+            else:
+                # Update existing dashboard with new data
+                self.logger.info("Updating dashboard with new analysis results")
+                self.dashboard.update_data(self.analysis_results)
+            
             self.dashboard.run(
                 host=settings.DASHBOARD_HOST,
                 port=settings.DASHBOARD_PORT,
